@@ -1,12 +1,3 @@
-#This file has three procedures:
-	#Insert.- Create a node and insert the number at the end of the list untill it receives a 0
-	#Remove.- Remove a number from the list
-	#Print.- Print list in the order the numbers were introduced
-
-#EXAMPLE:  Insert 1-5-8-7-9-0
-#          Remove 7
-#          Final list: 1-5-8-9
-#-----------------------------------------------------------------------------------------------------#
 	.data
 strIntroduce: .asciiz "Introduce a few numbers. Insert 0 to stop => "
 strRemove: .asciiz "What number do you want to remove?: "
@@ -103,17 +94,17 @@ print:
 	move $s0, $a0
 	
 	lw $s1, 4($s0)
-	beqz $s1, endLook	#If the value is 0, means the end of the list
+	beqz $s1, endLookNumber	#If the value is 0, means the end of the list
 	
 	move $a0, $s1
 	jal print
 	
-	endLook:
+	endLookNumber:
 		lw $a0, 0($s0)
 		li $v0, 1
 		syscall
 		
-	lw $sp, 28($sp)
+	lw $fp, 28($sp)
 	lw $ra, 24($sp)
 	lw $s0, 16($sp)
 	lw $s1, 12($sp)
