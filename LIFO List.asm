@@ -2,6 +2,7 @@
 strIntroduce: .asciiz "Introduce a few numbers. Insert 0 to stop => "
 strRemove: .asciiz "What number do you want to remove?: "
 strList: .asciiz "The list is: "
+strNotFound: .asciiz "The number is not in the list"
 	.text
 #Structure of the node	
 #typedef struct _node_t {
@@ -33,6 +34,18 @@ readNumber:
 	b readNumber
 	
 endRead:
+	la $a0, strRemove
+	li $v0, 4
+	syscall
+	
+	li $v0, 5
+	syscall
+	move $s1, $v0
+	
+	move $a0, $s0
+	move $a1, $s1
+	jal remove
+	
 	move $a0, $s0
 	jal print
 	
@@ -75,7 +88,52 @@ push:
 #endPush
 #-----------------------------------------------------------------------------------------------------#
 remove:
-
+	subu $sp, $sp, 32
+	sw $fp, 28($sp)
+	sw $ra, 24($sp)
+	sw $s0, 16($sp)
+	sw $s1, 12($sp)
+	sw $s2, 8($sp)
+	sw $s3, 4($sp)
+	sw $s4, 0($sp)
+	addiu $fp, $sp, 28
+	
+	#Save Values
+	move $s0, $a0	#s0 has top value
+	move $s1, $a1	#s1 is the number we want to remove
+	
+loop:
+	lw $s2, 4($s0)		#4($s0) has the address
+	beqz $s2, notFound
+		lw $s3, 0($s2)	#0($s0) has the number
+	beq $s1, $s3, found
+		move $s0, $s2
+	b loop
+	
+found:
+	#We found the value and we have to remove it
+	lw $s4, 4($s2)
+	sw $s4, 4($s0)
+	
+	move $v0, $s2
+	b endRemove
+	
+notFound:
+	#The number is not in the list
+	la $a0, strNotFound
+	li $v0, 4
+	syscall
+	
+endRemove:			
+	lw $fp, 28($sp)
+	lw $ra, 24($sp)
+	lw $s0, 16($sp)
+	lw $s1, 12($sp)
+	lw $s2, 8($sp)
+	lw $s3, 4($sp)
+	lw $s4, 0($sp)
+	addiu $sp, $sp, 32
+	jr $ra
 #endRemove
 #-----------------------------------------------------------------------------------------------------#
 #if (top->next =! null) {
