@@ -81,11 +81,11 @@ push:
 	lw $s2, 8($sp)
 	addiu $sp, $sp, 32
 	jr $ra
-
+#endPush
 #-----------------------------------------------------------------------------------------------------#
 remove:
 
-
+#endRemove
 #-----------------------------------------------------------------------------------------------------#
 #if (top->next =! null) {
 #	print(top->next); 
@@ -98,11 +98,30 @@ print:
 	sw $ra, 24($sp)
 	sw $s0, 16($sp)
 	sw $s1, 12($sp)
-	sw $s2, 8($sp)
-	sw $s3, 4($sp)
-	sw $s4, 0($sp)
 	addiu $fp, $sp, 28
 
+	move $s0, $a0
+	
+	lw $s1, 4($s0)
+	beqz $s1, endLook	#If the value is 0, means the end of the list
+	
+	move $a0, $s1
+	jal print
+	
+	endLook:
+		lw $a0, 0($s0)
+		li $v0, 1
+		syscall
+		
+	lw $sp, 28($sp)
+	lw $ra, 24($sp)
+	lw $s0, 16($sp)
+	lw $s1, 12($sp)
+	addiu $sp, $sp, 32
+	jr $ra
+#endPrint
+	
+	
 
 
 
