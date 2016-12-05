@@ -56,8 +56,6 @@ endRead:
 #-----------------------------------------------------------------------------------------------------#
 #node_t *push(node_t *top, int val):
 push:
-#¿Como crear pila correctamente?
-#¿Hay que crear una pila por cada valor que se vaya a utilizar aunque no salga de este procedimiento?
 	subu $sp, $sp, 32
 	sw $fp, 28($sp)
 	sw $ra, 24($sp)
