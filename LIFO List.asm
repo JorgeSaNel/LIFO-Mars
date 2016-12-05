@@ -2,7 +2,8 @@
 strIntroduce: .asciiz "Introduce a few numbers. Insert 0 to stop => "
 strRemove: .asciiz "What number do you want to remove?: "
 strList: .asciiz "The list is: "
-strNotFound: .asciiz "The number is not in the list"
+strNotFound: .asciiz "The number was not found. The list is => "
+strDashLine: .asciiz " - "
 	.text
 #Structure of the node	
 #typedef struct _node_t {
@@ -53,16 +54,18 @@ endRead:
 	li $v0, 10
 	syscall
 #-----------------------------------------------------------------------------------------------------#
+#node_t *push(node_t *top, int val):
 push:
 #¿Como crear pila correctamente?
-#¿Hay que pila por cada valor que se vaya a utilizar aunque no salga de este procedimiento?
+#¿Hay que crear una pila por cada valor que se vaya a utilizar aunque no salga de este procedimiento?
 	subu $sp, $sp, 32
 	sw $fp, 28($sp)
 	sw $ra, 24($sp)
-	sw $s0, 16($sp)
-	sw $s1, 12($sp)
-	sw $s2, 8($sp)
-	addiu $fp, $sp, 28
+	addu $fp, $sp, 32
+	sw $s0, 0($fp)
+	sw $s1, 4($fp)
+	sw $s2, 8($fp)
+
 	
 	#Move values
 	move $s0, $a0	#s0 is the top
@@ -78,25 +81,26 @@ push:
 
 	move $v0, $s2
 	
+	lw $s0, 0($fp)
+	lw $s1, 4($fp)
+	lw $s2, 8($fp)
 	lw $fp, 28($sp)
 	lw $ra, 24($sp)
-	lw $s0, 16($sp)
-	lw $s1, 12($sp)
-	lw $s2, 8($sp)
-	addiu $sp, $sp, 32
+	addu $sp, $sp, 32
 	jr $ra
 #endPush
 #-----------------------------------------------------------------------------------------------------#
+#node_t *remove(node_t *top, int val)
 remove:
 	subu $sp, $sp, 32
 	sw $fp, 28($sp)
 	sw $ra, 24($sp)
-	sw $s0, 16($sp)
-	sw $s1, 12($sp)
-	sw $s2, 8($sp)
-	sw $s3, 4($sp)
-	sw $s4, 0($sp)
-	addiu $fp, $sp, 28
+	addiu $fp, $sp, 32
+	sw $s0, 16($fp)
+	sw $s1, 12($fp)
+	sw $s2, 8($fp)
+	sw $s3, 4($fp)
+	sw $s4, 0($fp)
 	
 	#Save Values
 	move $s0, $a0	#s0 has top value
@@ -124,14 +128,14 @@ notFound:
 	li $v0, 4
 	syscall
 	
-endRemove:			
+endRemove:		
+	lw $s0, 16($fp)
+	lw $s1, 12($fp)
+	lw $s2, 8($fp)
+	lw $s3, 4($fp)
+	lw $s4, 0($fp)	
 	lw $fp, 28($sp)
 	lw $ra, 24($sp)
-	lw $s0, 16($sp)
-	lw $s1, 12($sp)
-	lw $s2, 8($sp)
-	lw $s3, 4($sp)
-	lw $s4, 0($sp)
 	addiu $sp, $sp, 32
 	jr $ra
 #endRemove
@@ -145,9 +149,9 @@ print:
 	subu $sp, $sp, 32
 	sw $fp, 28($sp)
 	sw $ra, 24($sp)
-	sw $s0, 16($sp)
-	sw $s1, 12($sp)
-	addiu $fp, $sp, 28
+	addiu $fp, $sp, 32
+	sw $s0, 16($fp)
+	sw $s1, 12($fp)
 
 	move $s0, $a0
 	
@@ -162,10 +166,14 @@ print:
 		li $v0, 1
 		syscall
 		
+		la $a0, strDashLine
+		li $v0, 4
+		syscall
+		
+	lw $s0, 16($fp)
+	lw $s1, 12($fp)
 	lw $fp, 28($sp)
 	lw $ra, 24($sp)
-	lw $s0, 16($sp)
-	lw $s1, 12($sp)
 	addiu $sp, $sp, 32
 	jr $ra
 #endPrint
