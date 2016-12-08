@@ -56,7 +56,7 @@ endRead:
 	
 	#Print
 	move $a0, $s0
-	jal print
+	jal printRecursive
 	
 	#End Program
 	li $v0, 10
@@ -240,6 +240,46 @@ print:
 	addiu $sp, $sp, 32
 	jr $ra
 #endPrint
+#-----------------------------------------------------------------------------------------------------#
+#if (node =! null) {
+#	print(node->next); }
+#else{
+#	return; }
+#printf(“%d\n”, node->val);
+#return;
+printRecursive:
+	subu $sp, $sp, 32
+	sw $fp, 28($sp)
+	sw $ra, 24($sp)
+	addiu $fp, $sp, 32
+	sw $s0, 16($fp)
+	sw $s1, 12($fp)
+	
+	move $s0, $a0	
+	
+	#Print Numbers
+	lw $a0, 0($s0)
+	li $v0, 1
+	syscall
+		
+	la $a0, strDashLine
+	li $v0, 4
+	syscall
+	
+	lw $s1, 4($s0)
+	beqz $s1, endRecursive
+		move $a0, $s1
+		jal printRecursive
+		
+	endRecursive:
+	lw $s0, 16($fp)
+	lw $s1, 12($fp)
+	lw $fp, 28($sp)
+	lw $ra, 24($sp)
+	addiu $sp, $sp, 32
+	jr $ra
+#endPrintRecursive
+
 
 
 	
