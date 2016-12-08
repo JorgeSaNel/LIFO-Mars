@@ -17,8 +17,8 @@ main:
 	li $v0, 4
 	syscall
 
-	#$s0 will have always the first node of the list
-	li $s0, 0
+	li $s0, 0	#$s0 will have always the first node of the list
+	li $s7, 0	#$s7 is how many numbers did you introduce
 	
 readNumber:
 	#Read Number
@@ -27,6 +27,7 @@ readNumber:
 	move $s1, $v0
 
 	beqz $s1, endRead	#In case it is 0
+	add $s7, $s7, 1
 	
 	move $a0, $s0
 	move $a1, $s1
@@ -35,6 +36,7 @@ readNumber:
 	b readNumber
 	
 endRead:
+	#Remove
 	la $a0, strRemove
 	li $v0, 4
 	syscall
@@ -47,6 +49,12 @@ endRead:
 	move $a1, $s1
 	jal remove
 	
+	#Sort numbers in ascending order
+	move $a0, $s0
+	move $a1, $s7
+	jal sortNumbers
+	
+	#Print
 	move $a0, $s0
 	jal print
 	
@@ -87,6 +95,63 @@ push:
 	addu $sp, $sp, 32
 	jr $ra
 #endPush
+#-----------------------------------------------------------------------------------------------------#
+#To sort the numbers correctly, we always asume that we found the number we want to remove
+sortNumbers:
+	subu $sp, $sp, 32
+	sw $fp, 28($sp)
+	sw $ra, 24($sp)
+	addiu $fp, $sp, 32
+	sw $s0, 0($fp)
+	sw $s1, 4($fp)
+	sw $s2, 8($fp)
+	
+	move $s0, $a0
+	move $s7, $a1
+	
+	li $t7, 1
+repeatProcess:
+	beq $t7, $s7, free
+	add $t7, $t7, 1
+	
+	li $t0, 2
+	
+	continueSort:
+	beq $t0, $s7, finishSortNumbers
+		add $t0, $t0, 1
+		
+		lw $s2, 4($s0)		
+		lw $s3, 0($s2)	#s2 = list[a+1]
+		lw $s1, 0($s0)	#s3 = list[a]
+		
+		bgt $s1, $s3, changeNumbers
+			move $s0, $s2
+			b continueSort
+		
+	changeNumbers:
+		move $t1, $s1	#aux = list[a]
+		move $t2, $s3
+		sw $t2, 0($s0)	#list[a] = list[a+1]
+		sw $t1, 0($s2)	#list[a+1] = aux
+		
+		move $s0, $s2
+			
+		b continueSort
+	
+	finishSortNumbers:
+		move $s0, $a0
+		b repeatProcess
+		
+	free:
+	lw $s0, 0($fp)
+	lw $s1, 4($fp)
+	lw $s2, 8($fp)
+	lw $fp, 28($sp)
+	lw $ra, 24($sp)
+	addu $sp, $sp, 32
+	jr $ra
+
+#endSortNumbers:
 #-----------------------------------------------------------------------------------------------------#
 #node_t *remove(node_t *top, int val)
 remove:
@@ -175,6 +240,8 @@ print:
 	addiu $sp, $sp, 32
 	jr $ra
 #endPrint
+
+
 	
 	
 
